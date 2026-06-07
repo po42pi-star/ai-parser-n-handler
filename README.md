@@ -170,7 +170,6 @@ ai-parser-n-handler/
 ├── .gitignore                   # Исключения для Git
 ├── LICENSE                      # Лицензия MIT
 ├── README.md                    # Документация проекта
-├── PEcb09_report.md             # Отчёт по задаче
 │
 ├── app_test/                    # Веб-приложение (FastAPI)
 │   ├── main.py                  # Точка входа FastAPI
