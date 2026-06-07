@@ -1,0 +1,63 @@
+﻿services:
+  db:
+    image: postgres:15-alpine
+    container_name: reviews-db
+    environment:
+      POSTGRES_DB: reviews_db
+      POSTGRES_USER: reviews_user
+      POSTGRES_PASSWORD: reviews_password
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U reviews_user"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  app:
+    build:
+      context: ./app_test
+      dockerfile: Dockerfile
+    container_name: reviews-app
+    ports:
+      - "8000:8000"
+    environment:
+      POSTGRES_DB: reviews_db
+      POSTGRES_USER: reviews_user
+      POSTGRES_PASSWORD: reviews_password
+      POSTGRES_HOST: db
+      POSTGRES_PORT: 5432
+      APP_HOST: 0.0.0.0
+      APP_PORT: 8000
+      WORKER_API_TOKEN: ${WORKER_API_TOKEN:-change-me}
+    depends_on:
+      db:
+        condition: service_healthy
+    working_dir: /code/app
+    command: uvicorn main:app --host 0.0.0.0 --port 8000
+
+  worker:
+    build:
+      context: ./ai_handler
+      dockerfile: Dockerfile
+    container_name: reviews-worker
+    environment:
+      OPENAI_API_KEY: ${OPENAI_API_KEY}
+      OPENAI_BASE_URL: ${OPENAI_BASE_URL}
+      OPENAI_MODEL: gpt-4.1-mini
+      WORKER_API_TOKEN: ${WORKER_API_TOKEN:-change-me}
+      TARGET_SITE_URL: http://app:8000
+      STATE_FILE_PATH: data/state.json
+      AI_AUTHOR_NAME: AI Support
+    volumes:
+      - worker_data:/service/data
+    depends_on:
+      app:
+        condition: service_started
+    command: python worker.py
+
+volumes:
+  postgres_data:
+  worker_data:

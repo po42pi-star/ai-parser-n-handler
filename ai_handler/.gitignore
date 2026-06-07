@@ -1,0 +1,37 @@
+@'
+# Секреты и конфиги
+.env
+*.env
+!docker-compose.yml
+!ai_handler/.env.example
+!app_test/.env.example
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+.venv/
+venv/
+ENV/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Docker
+docker-compose.override.yml
+
+# Логи и данные
+*.log
+logs/
+*.sqlite3
+*.db
+
+# OS
+.DS_Store
+Thumbs.db
+'@ | Out-File -FilePath ".gitignore" -Encoding UTF8 -Append
